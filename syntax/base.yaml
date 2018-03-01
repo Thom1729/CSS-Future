@@ -1,0 +1,240 @@
+%YAML 1.2
+%TAG ! tag:yaml-macros:CSSFuture.src.macros:
+---
+name: CSS Future
+file_extensions:
+  - css
+scope: source.css.future
+
+variables:
+  identifier_start: (?:[A-Za-z_])
+  identifier_continue: (?:[A-Za-z0-9_-])
+  identifier_end: (?!{{identifier_continue}})
+  identifier: (?:-?{{identifier_start}}{{identifier_continue}}*{{identifier_end}})
+
+contexts:
+  prototype:
+    - include: comments
+
+  main:
+    - include: statements
+
+  immediately-pop:
+    - match: ''
+      pop: true
+
+  else-pop:
+    - match: (?=\S)
+      pop: true
+
+  identifier:
+    - match: \\\h{1,6}
+      scope: constant.character.escape.hexadecimal.css
+    - match: \\.
+      scope: constant.character.escape.css
+    - match: (?![A-Za-z0-9_-])
+      pop: true
+
+  comments:
+    - match: /\*
+      scope: punctuation.definition.comment.begin.css
+      push:
+        - meta_scope: comment.block.css
+        - match: \*/
+          scope: punctuation.definition.comment.end.css
+          pop: true
+
+  statements:
+    - match: \@
+      scope: punctuation.definition.keyword.css
+      set:
+        - !meta meta.at-rule.css
+        - at-rule
+        - - meta_scope: keyword.at-rule.css
+          - include: identifier
+
+    - match: (?=\S)
+      push:
+        - block
+        - selector
+
+  at-rule:
+    - match: ;
+      scope: punctuation.terminator.css
+      pop: true
+    - include: block
+    - include: property-value
+
+
+  selector:
+    - meta_scope: meta.selector.css
+
+    - match: (?=[{;])
+      pop: true
+
+    - match: \,
+      scope: punctuation.separator.comma.css
+
+    - match: \*
+      scope: entity.name.tag.wildcard.css
+
+    - match: '>'
+      scope: keyword.operator.selector.css
+
+    - match: \.(?={{identifier}})
+      scope: punctuation.definition.entity.class.css
+      push:
+        - meta_scope: meta.selector.class.css
+        - meta_content_scope: entity.other.attribute-name.class.css
+        - include: identifier
+
+    - match: \#(?={{identifier}})
+      scope: punctuation.definition.entity.id.css
+      push:
+        - meta_scope: meta.selector.id.css
+        - meta_content_scope: entity.other.attribute-name.id.css
+        - include: identifier
+
+    - match: \:(?={{identifier}})
+      scope: punctuation.definition.entity.css.css
+      push:
+        - meta_scope: meta.selector.pseudo-class.css
+        - include: generic-pseudo-class
+        - include: builtin-pseudo-class
+
+    - match: (?={{identifier}})
+      push:
+        - meta_scope: entity.name.tag.css
+        - include: identifier
+
+  block:
+    - match: \{
+      scope: punctuation.section.block.begin.css
+      set:
+        - meta_scope: meta.block.css
+        - match: \}
+          scope: punctuation.section.block.end.css
+          pop: true
+        - include: block-contents
+
+  block-contents:
+    - include: builtin-properties
+    - include: generic-property
+
+  generic-pseudo-class:
+    - match: '{{identifier}}'
+      pop: true
+
+  generic-property:
+    - match: '{{identifier}}'
+      scope: meta.property-name.css
+      push:
+        - property-meta
+        - property-value
+        - property-colon
+
+  property-meta:
+    - meta_scope: meta.property.css
+    - include: immediately-pop
+
+  property-colon:
+    - match: ':'
+      scope: punctuation.separator.key-value.css
+      pop: true
+    - include: else-pop
+
+  property-value:
+    - match: (?=})
+      pop: true
+
+    - match: ';'
+      scope: punctuation.terminator.property.css
+      pop: true
+
+    - include: strings
+    - include: quantities
+    - include: functions
+    - include: colors
+
+    - match: \,
+      scope: punctuation.separator.comma.css
+
+  strings:
+    - match: '"'
+      scope: punctuation.definition.string.begin.css
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.double.css
+        - match: '"'
+          scope: punctuation.definition.string.end.css
+          pop: true
+        - include: string-contents
+
+    - match: "'"
+      scope: punctuation.definition.string.begin.css
+      push:
+        - meta_include_prototype: false
+        - meta_scope: string.quoted.single.css
+        - match: "'"
+          scope: punctuation.definition.string.end.css
+          pop: true
+        - include: string-contents
+
+  string-contents:
+    - match: \n
+      scope: invalid.illegal.newline.css
+      pop: true
+
+  number:
+    - match: ([-+])?([0-9]*\.[0-9]+|[0-9]+)
+      scope: constant.numeric.css
+      pop: true
+
+  units-length:
+    - match: '(?:px){{identifier_end}}'
+      scope: storage.type.unit.length.css
+      pop: true
+    - include: else-pop
+
+  quantities:
+    - match: (?=[+-]?\.?[0-9])
+      push:
+        - units-length
+        - number
+
+  colors:
+    - match: (#)\h+
+      scope: constant.other.color.rgb.css
+      captures:
+        1: punctuation.definition.color.css
+
+  functions:
+    - match: (?={{identifier}}\s*\()
+      push:
+        - function-arguments
+        - function-name
+
+  function-name:
+    - match: (?i)\burl\b
+      scope: support.function.url.css
+      pop: true
+
+    - match: (?i)\bcubic-bezier\b
+      scope: support.function.timing.css
+      pop: true
+
+    - match: ''
+      set:
+        - meta_scope: variable.other.function.css
+        - include: identifier
+
+  function-arguments:
+    - match: \(
+      scope: punctuation.definition.group.begin.css
+      set:
+        - meta_scope: meta.group.css
+        - match: \)
+          scope: punctuation.definition.group.end.css
+          pop: true
+        - include: property-value
+    - include: else-pop

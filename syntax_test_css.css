@@ -1,0 +1,47 @@
+/* SYNTAX TEST "Packages/CSSFuture/CSS Future.sublime-syntax" */
+
+   /* What am I, a comment? */
+/* ^^                          punctuation.definition.comment */
+/* ^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.block                  */
+/*                          ^^ punctuation.definition.comment */
+
+.test-strings {
+    content: "double";
+/*           ^^^^^^^^  string.quoted.double                */
+/*           ^         punctuation.definition.string.begin */
+/*                  ^  punctuation.definition.string.end   */
+    content: 'single';
+/*           ^^^^^^^^  string.quoted.single                */
+/*           ^         punctuation.definition.string.begin */
+/*                  ^  punctuation.definition.string.end   */
+
+    content: 'invalid;
+/*                    ^ invalid.illegal.newline */
+}
+
+.test-punctuation {
+/*                ^ punctuation.section.block.begin */
+    top: 1px;
+/*     ^      punctuation.separator.key-value  */
+/*          ^ punctuation.terminator.rule      */
+
+    top: cubic-bezier(0.2, 0, 0.13, 2);
+/*                       ^ punctuation.separator*/
+
+    top: url("image");
+/*          ^         punctuation.definition.group.begin */
+/*                  ^ punctuation.definition.group.end */
+}
+/* < punctuation.section.block.end */
+
+    .classname {}
+/*  ^^^^^^^^^^^ meta.selector */
+/*  ^          punctuation.definition.entity     */
+/*   ^^^^^^^^^ entity.other.attribute-name.class */
+
+    #id {}
+/*  ^   punctuation.definition.entity  */
+/*   ^^ entity.other.attribute-name.id */
+
+    html {}
+/*  ^^^^ entity.name.tag */

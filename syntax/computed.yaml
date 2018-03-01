@@ -1,0 +1,10 @@
+%YAML 1.2
+%TAG ! tag:yaml-macros:yamlmacros.lib.extend,CSSFuture.src.macros:
+---
+!merge
+variables: !merge {}
+
+contexts: !merge
+  builtin-properties: !property_contexts
+
+  builtin-pseudo-class: !pseudo_classes_context

@@ -1,0 +1,6 @@
+%YAML 1.2
+%TAG ! tag:yaml-macros:yamlmacros.lib.extend,yamlmacros.lib.include:
+---
+!apply
+- !include_resource Packages/CSSFuture/syntax/base.yaml
+- !include_resource Packages/CSSFuture/syntax/computed.yaml

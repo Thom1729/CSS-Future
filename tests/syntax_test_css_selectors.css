@@ -1,0 +1,6 @@
+/* SYNTAX TEST "Packages/CSSFuture/CSS Future.sublime-syntax" */
+
+    foo bar {}
+/*  ^^^^^^^ meta.selector */
+/*  ^^^ entity.name.tag */
+/*      ^^^ entity.name.tag */
