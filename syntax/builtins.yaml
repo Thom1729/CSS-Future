@@ -8,3 +8,6 @@ contexts: !merge
   builtin-properties: !property_contexts
 
   builtin-pseudo-class: !pseudo_classes_context
+  builtin-pseudo-element: !pseudo_elements_context
+  # builtin-units: !units_context
+  builtin-quantity: !quantities_context

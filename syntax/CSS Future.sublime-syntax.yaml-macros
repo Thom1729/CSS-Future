@@ -3,4 +3,4 @@
 ---
 !apply
 - !include_resource Packages/CSSFuture/syntax/base.yaml
-- !include_resource Packages/CSSFuture/syntax/computed.yaml
+- !include_resource Packages/CSSFuture/syntax/builtins.yaml

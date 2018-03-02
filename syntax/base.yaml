@@ -12,6 +12,8 @@ variables:
   identifier_end: (?!{{identifier_continue}})
   identifier: (?:-?{{identifier_start}}{{identifier_continue}}*{{identifier_end}})
 
+  number: (?:[-+]?(?:[0-9]*\.[0-9]+|[0-9]+))
+
 contexts:
   prototype:
     - include: comments
@@ -78,7 +80,7 @@ contexts:
     - match: \*
       scope: entity.name.tag.wildcard.css
 
-    - match: '>'
+    - match: '[>+~]'
       scope: keyword.operator.selector.css
 
     - match: \.(?={{identifier}})
@@ -95,12 +97,19 @@ contexts:
         - meta_content_scope: entity.other.attribute-name.id.css
         - include: identifier
 
-    - match: \:(?={{identifier}})
-      scope: punctuation.definition.entity.css.css
+    - match: '::(?={{identifier}})'
+      scope: punctuation.definition.entity.pseudo-element.css
+      push:
+        - meta_scope: meta.selector.pseudo-element.css
+        - include: builtin-pseudo-element
+        - include: generic-pseudo-class
+
+    - match: ':(?={{identifier}})'
+      scope: punctuation.definition.entity.pseudo-class.css
       push:
         - meta_scope: meta.selector.pseudo-class.css
-        - include: generic-pseudo-class
         - include: builtin-pseudo-class
+        - include: generic-pseudo-class
 
     - match: (?={{identifier}})
       push:
@@ -151,13 +160,16 @@ contexts:
       scope: punctuation.terminator.property.css
       pop: true
 
-    - include: strings
-    - include: quantities
-    - include: functions
-    - include: colors
+    - include: value
 
     - match: \,
       scope: punctuation.separator.comma.css
+
+  value:
+    - include: strings
+    - include: quantity
+    - include: functions
+    - include: colors
 
   strings:
     - match: '"'
@@ -185,22 +197,13 @@ contexts:
       scope: invalid.illegal.newline.css
       pop: true
 
-  number:
-    - match: ([-+])?([0-9]*\.[0-9]+|[0-9]+)
-      scope: constant.numeric.css
-      pop: true
-
-  units-length:
-    - match: '(?:px){{identifier_end}}'
-      scope: storage.type.unit.length.css
-      pop: true
-    - include: else-pop
-
-  quantities:
-    - match: (?=[+-]?\.?[0-9])
-      push:
-        - units-length
-        - number
+  quantity:
+    - include: builtin-quantity
+    # - include: generic-quantity
+    - !quantity_rule [ 'n', 'nth' ]
+    - !quantity_rule [ '{{identifier}}', 'quantity.unknown' ]
+    - !quantity_rule [ '%', 'percent' ]
+    - !quantity_rule [ '', 'unitless' ]
 
   colors:
     - match: (#)\h+
@@ -236,5 +239,5 @@ contexts:
         - match: \)
           scope: punctuation.definition.group.end.css
           pop: true
-        - include: property-value
+        - include: value
     - include: else-pop
